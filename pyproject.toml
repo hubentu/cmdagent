@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "toolagent"
+name = "cwlagent"
 version = "0.1.0"
 description = "Convert any CMD tool into a LLM agent"
 authors = ["Qiang"]

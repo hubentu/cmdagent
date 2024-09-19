@@ -18,7 +18,7 @@ Tool Agent is a Python package that converts any command-line tool into a Large 
 
 To install Tool Agent, run the following command:
 ```bash
-pip install
+pip install git+https://github.com/hubentu/cwlagent
 ```
 ## Usage
 
@@ -26,7 +26,7 @@ pip install
 
 To create an API, import the `tool_api` function from `toolagent.remote_api` and pass in the path to a CWL file and the name of the tool:
 ```python
-from toolagent.remote_api import tool_api
+from cwlagent.remote_api import tool_api
 
 api = tool_api(cwl_file='tests/dockstore-tool-md5sum.cwl', tool_name='md5sum')
 api.serve()
@@ -35,11 +35,11 @@ The `api.serve()` method will start a RESTful API as a service, allowing you to 
 
 ### Creating a Tool Agent
 
-To create a tool agent, import the `tool_agent` function from `toolagent.agent` and pass in the API instance:
+To create a tool agent, import the `cwlagent` function from `toolagent.agent` and pass in the API instance:
 ```python
-from toolagent.agent import tool_agent
+from cwlagent.agent import cwlagent
 
-ta = tool_agent(api)
+ta = cwlagent(api)
 md5 = ta.create_tool()
 md5(input_file="tests/dockstore-tool-md5sum.cwl")
 ```
