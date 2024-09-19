@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "toolagent"
+version = "0.1.0"
+description = "Convert any CMD tool into a LLM agent"
+authors = ["Qiang"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.14"
+fastapi = "^0.114.0"
+requests = "^2.32.3"
+pydantic = "^2.9.2"
+uvicorn = "^0.30.6"
+cwltool = "^3.1.20240909164951"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
