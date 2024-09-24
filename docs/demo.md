@@ -2,8 +2,8 @@
 # Demo
 
 ```python
-from cwlagent.agent import cwlagent
-from cwlagent.remote_api import tool_api
+from cmdagent.agent import cmdagent
+from cmdagent.remote_api import tool_api
 ```
 
 ## create API
@@ -14,7 +14,7 @@ api.serve()
 
 ## create tool agent
 ```python
-ta = cwlagent(api)
+ta = cmdagent(api)
 md5 = ta.create_tool()
 md5(input_file="tests/dockstore-tool-md5sum.cwl")
 ```
