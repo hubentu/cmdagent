@@ -1,10 +1,10 @@
-from cmdagent.agent import cmdagent
+from cmdagent.agent import tool_agent
 from cmdagent.remote_api import tool_api
 
 api = tool_api(cwl_file='tests/dockstore-tool-md5sum.cwl', tool_name='md5sum')
 api.serve()
 
-ta = cmdagent(api)
+ta = tool_agent(api)
 md5 = ta.create_tool()
 md5(input_file="tests/dockstore-tool-md5sum.cwl")
 

@@ -66,6 +66,7 @@ class tool_agent():
             ann[k] = v.annotation
         ann['return'] = str
         gen_function.__annotations__ = ann
+        gen_function.__doc__ = self.tool.t.tool['doc']
 
         return gen_function
 
@@ -95,5 +96,7 @@ class tool_agent():
 
         # Return the generated function
         dynamic_func.__annotations__ = fun.__annotations__
+        dynamic_func.__doc__ = fun.__doc__
+        
         return dynamic_func
 

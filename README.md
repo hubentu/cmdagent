@@ -37,9 +37,9 @@ The `api.serve()` method will start a RESTful API as a service, allowing you to 
 
 To create a tool agent, import the `cmdagent` function from `cmdagent.agent` and pass in the API instance:
 ```python
-from cmdagent.agent import cmdagent
+from cmdagent.agent import tool_agent
 
-ta = cmdagent(api)
+ta = tool_agent(api)
 md5 = ta.create_tool()
 md5(input_file="tests/dockstore-tool-md5sum.cwl")
 ```
