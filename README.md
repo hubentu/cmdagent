@@ -22,7 +22,18 @@ pip install git+https://github.com/hubentu/cmdagent
 ```
 ## Usage
 
-### Creating an API
+### MCP server
+* Start MCP server
+```
+python tests/mcp_test.py
+```
+
+* Call by MCP client from Cursor
+[![Demo md5](tests/cmdagent.gif)](https://www.youtube.com/watch?v=QqevFmQbTDU)
+
+
+### Function call
+* Creating an API
 
 To create an API, import the `tool_api` function from `cmdagent.remote_api` and pass in the path to a CWL file and the name of the tool:
 ```python
@@ -33,7 +44,7 @@ api.serve()
 ```
 The `api.serve()` method will start a RESTful API as a service, allowing you to run the tool remotely from the cloud or locally.
 
-### Creating a Tool Agent
+* Creating a Tool Agent
 
 To create a tool agent, import the `cmdagent` function from `cmdagent.agent` and pass in the API instance:
 ```python
@@ -45,7 +56,7 @@ md5(input_file="tests/dockstore-tool-md5sum.cwl")
 ```
 Function `md5` is created automatically based on the `api`.
 
-### Integrating with Gemini
+* Function call with Gemini
 
 To integrate the tool agent with Gemini, import the `GenerativeModel` class from `google.generativeai` and create a new instance:
 ```python
