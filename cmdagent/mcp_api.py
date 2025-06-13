@@ -91,15 +91,15 @@ class mcp_api():
             for k, v in self.Base.model_fields.items()
         )
 
-        @self.mcp.tool(name=self.tool_name)
+        tool_desc = f"{self.tool_name}: {self.tool.t.tool.get('label', '')}\n"
+
+        @self.mcp.tool(name=self.tool_name, description=tool_desc)
         def mcp_tool(
             data: List[self.Base] = Body(
                 ...,
                 description=f"Input data for '{self.tool_name}'. Fields: {fields_desc}"
             )
         ) -> dict:
-            # mcp_tool.__annotations__ = {k: v.annotation for k, v in self.Base.model_fields.items()}
-            # mcp_tool.__doc__ = self.tool.t.tool['doc']
             logger.info(data)
             params = data[0].model_dump()
             outs = run_tool(self.tool, params, self.outputs, self.read_outs)
