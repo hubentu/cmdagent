@@ -18,39 +18,47 @@ logger.addHandler(logging.StreamHandler())
 
 
 class mcp_api():
-    def __init__(self, cwl_file, tool_name='tool', host='0.0.0.0', port=8000, read_outs=True):
+    def __init__(self, host='0.0.0.0', port=8000):
         """
-        Initializes a tool_api object, which is used to create a FastAPI server for a given CWL file.
+        Initializes an MCP server that can host multiple CWL tools.
 
         Parameters:
-            cwl_file (str): The path to the CWL file.
-            tool_name (str): The name of the tool. Defaults to 'tool'.
             host (str): The host IP address. Defaults to '0.0.0.0'.
             port (int): The port number. Defaults to 8000.
             read_outs (bool): Whether to read the outputs. Defaults to True.
-
-        Returns:
-            None
         """
-        self.cwl_file = cwl_file
-        self.tool_name = tool_name
         self.host = host
         self.port = port
-        self.read_outs = read_outs
         self.server = None
         self.url = None
-        # cwl
+        self.mcp = FastMCP(host=host, port=port)
+        self.tools = {}  # tool_name -> tool info
+
+        @self.mcp.tool()
+        async def uploadFile(file: UploadFile = File(description="The file to be uploaded to the server")) -> dict:
+            """
+            Upload a file to the server.
+            """
+            with NamedTemporaryFile(delete=False) as tmp:
+                contents = file.file.read()
+                tmp.write(contents)
+            return {"filename": file.filename, "filepath": tmp.name}
+
+    def add_tool(self, cwl_file, tool_name, read_outs=True):
+        """
+        Adds a CWL tool to the MCP server.
+        """
         runtime_context = RuntimeContext()
         runtime_context.outdir = mkdtemp()
         fac = factory.Factory(runtime_context=runtime_context)
-        self.tool = fac.make(cwl_file)
+        tool = fac.make(cwl_file)
 
-        self.inputs = self.tool.t.inputs_record_schema['fields']
-        self.outputs = self.tool.t.outputs_record_schema['fields']
+        inputs = tool.t.inputs_record_schema['fields']
+        outputs = tool.t.outputs_record_schema['fields']
 
         # map types
         it_map = {}
-        for it in self.inputs:
+        for it in inputs:
             if 'File' in it['type']:
                 it_map[it['name']] = (str, None)
             elif 'string' in it['type']:
@@ -63,52 +71,40 @@ class mcp_api():
             if 'null' in it['type']:
                 type, v = it_map[it['name']]
                 it_map[it['name']] = (Optional[type], v)
-    
-        self.Base = create_model('Base', **it_map)
 
-        # define tool
-        # fastapi
-        self.mcp = FastMCP(self.tool_name)
+        Base = create_model(f'Base_{tool_name}', **it_map)
 
-        @self.mcp.tool()
-        async def uploadFile(file: UploadFile = File(description="The file to be uploaded to the server")) -> dict:
-            """
-            Upload a file to the server.
-
-            Parameters:
-                file (UploadFile): The file to be uploaded.
-
-            Returns:
-                dict: A dictionary containing the filename and filepath of the uploaded file.
-            """
-            with NamedTemporaryFile(delete=False) as tmp:
-                contents = file.file.read()
-                tmp.write(contents)
-            return {"filename": file.filename, "filepath": tmp.name}
-
-        fields_desc = ", ".join(
-            f"{k}: {v.annotation.__name__ if hasattr(v.annotation, '__name__') else str(v.annotation)}"
-            for k, v in self.Base.model_fields.items()
+        fields_desc = "\n\n".join(
+            f"{k}: {inputs[i].get('doc', '')}, {v.annotation.__name__ if hasattr(v.annotation, '__name__') else str(v.annotation)}"
+            for i, (k, v) in enumerate(Base.model_fields.items())
         )
 
-        tool_desc = f"{self.tool_name}: {self.tool.t.tool.get('label', '')}\n"
+        tool_desc = f"{tool_name}: {tool.t.tool.get('label', '')}\n\n {tool.t.tool.get('doc', '')}"
 
-        @self.mcp.tool(name=self.tool_name, description=tool_desc)
+        @self.mcp.tool(name=tool_name, description=tool_desc)
         def mcp_tool(
-            data: List[self.Base] = Body(
+            data: List[Base] = Body(
                 ...,
-                description=f"Input data for '{self.tool_name}'. Fields: {fields_desc}"
+                description=f"Input data for '{tool_name}'. Fields: \n\n{fields_desc}"
             )
         ) -> dict:
             logger.info(data)
             params = data[0].model_dump()
-            outs = run_tool(self.tool, params, self.outputs, self.read_outs)
+            outs = run_tool(tool, params, outputs, read_outs)
             logger.info(outs)
             return outs
 
+        # Store tool info if needed
+        self.tools[tool_name] = {
+            'cwl_file': cwl_file,
+            'tool': tool,
+            'Base': Base,
+            'inputs': inputs,
+            'outputs': outputs
+        }
 
     def serve(self):
-        print(f"Starting MCP server at http://{self.host}:{self.port}/{self.tool_name}/", flush=True)
+        print(f"Starting MCP server at http://{self.host}:{self.port}/", flush=True)
         self.mcp.run(transport='sse')
         # thread = threading.Thread(target=self.mcp.run, kwargs={'transport': 'sse'}, daemon=True)
         # thread.start()
