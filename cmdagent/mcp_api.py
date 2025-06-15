@@ -105,7 +105,7 @@ class mcp_api():
 
     def serve(self):
         print(f"Starting MCP server at http://{self.host}:{self.port}/", flush=True)
-        self.mcp.run(transport='sse')
+        self.mcp.run(transport='streamable-http')
         # thread = threading.Thread(target=self.mcp.run, kwargs={'transport': 'sse'}, daemon=True)
         # thread.start()
         # self.server_thread = thread

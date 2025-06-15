@@ -28,6 +28,14 @@ pip install git+https://github.com/hubentu/cmdagent
 python tests/mcp_test.py
 ```
 
+* Config MCP client
+```
+    "cmdagent": {
+        "url": "http://localhost:8000/mcp",
+        "transport": "streamable-http"
+        }
+```
+
 * Call by MCP client from Cursor
 [![Demo md5](tests/cmdagent.gif)](https://www.youtube.com/watch?v=QqevFmQbTDU)
 

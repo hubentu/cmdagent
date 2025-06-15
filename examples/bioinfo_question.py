@@ -6,4 +6,4 @@ mcp.add_tool('examples/bcftools_view.cwl', 'bcftools_view', read_outs=False)
 mcp.serve()
 
 # Question: What is the genome coordinates of the gene "BRCA1"?
-# Question: Is there any variant in the gene "BRCA1" from the https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar.vcf.gz?
+# Question: Subset variants in the gene "BRCA1" from the https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar.vcf.gz
